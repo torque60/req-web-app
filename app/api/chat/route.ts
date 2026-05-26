@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   const { messages, phase, questionIndex, doc } = body
 
   const apiKey = process.env.GEMINI_API_KEY
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash-lite'
+  const modelName = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite'
 
   if (!apiKey) {
     return NextResponse.json({ error: 'GEMINI_API_KEY is not set' }, { status: 500 })
