@@ -4,6 +4,18 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { RequirementsDoc, Phase } from '@/lib/types'
 
+function safeUrl(url: string): string | undefined {
+  if (!url) return undefined
+  if (url.startsWith('#') || url.startsWith('/') || url.startsWith('./') || url.startsWith('../')) return url
+  try {
+    const parsed = new URL(url)
+    if (['http:', 'https:', 'mailto:'].includes(parsed.protocol)) return url
+    return undefined
+  } catch {
+    return undefined
+  }
+}
+
 interface DocumentPaneProps {
   doc: RequirementsDoc
   phase: Phase
@@ -78,7 +90,7 @@ export default function DocumentPane({ doc, phase }: DocumentPaneProps) {
       {/* Document content */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
         <div className="markdown-doc max-w-2xl mx-auto">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} urlTransform={safeUrl}>
             {buildMarkdown(doc)}
           </ReactMarkdown>
         </div>

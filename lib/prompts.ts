@@ -2,6 +2,16 @@ import type { RequirementsDoc } from './types'
 
 export const TOTAL_QUESTIONS = 9
 
+// プロンプトに埋め込む前にユーザー由来の値をサニタイズする
+// マークダウン見出し・XMLタグ・既知のインジェクションパターンを除去
+function sanitizeForPrompt(value: string, maxLength = 150): string {
+  return value
+    .slice(0, maxLength)
+    .replace(/#{1,6}\s/g, '')
+    .replace(/[<>]/g, '')
+    .replace(/\[INST\]|\[\/INST\]|<s>|<\/s>/gi, '')
+}
+
 const STEPS = [
   {
     key: 'problem',
@@ -92,7 +102,7 @@ export function buildPhase1Prompt(questionIndex: number, doc: RequirementsDoc): 
 
   const filledEntries = (Object.entries(doc) as [keyof RequirementsDoc, string][])
     .filter(([, v]) => v)
-    .map(([k, v]) => `- ${k}: ${String(v).slice(0, 150)}`)
+    .map(([k, v]) => `- ${k}: ${sanitizeForPrompt(String(v))}`)
     .join('\n')
 
   return `あなたはエンジニア初心者のシステム企画・要件定義をサポートするAIアシスタントです。
@@ -134,15 +144,15 @@ ${filledEntries || '（まだ入力なし）'}
 
 export function buildPhase2Prompt(doc: RequirementsDoc): string {
   const docSummary = [
-    `課題・背景: ${doc.problem}`,
-    `ターゲット: ${doc.target}`,
-    `ゴール: ${doc.goal}`,
-    `機能・要件: ${doc.requirements}`,
-    `非機能要件: ${doc.nonFunctional}`,
-    `完了条件: ${doc.completionConditions}`,
-    `制約: ${doc.constraints}`,
-    `スコープ外: ${doc.outOfScope}`,
-    `リスク: ${doc.risks}`,
+    `課題・背景: ${sanitizeForPrompt(doc.problem, 500)}`,
+    `ターゲット: ${sanitizeForPrompt(doc.target, 500)}`,
+    `ゴール: ${sanitizeForPrompt(doc.goal, 500)}`,
+    `機能・要件: ${sanitizeForPrompt(doc.requirements, 500)}`,
+    `非機能要件: ${sanitizeForPrompt(doc.nonFunctional, 500)}`,
+    `完了条件: ${sanitizeForPrompt(doc.completionConditions, 500)}`,
+    `制約: ${sanitizeForPrompt(doc.constraints, 500)}`,
+    `スコープ外: ${sanitizeForPrompt(doc.outOfScope, 500)}`,
+    `リスク: ${sanitizeForPrompt(doc.risks, 500)}`,
   ].join('\n')
 
   return `あなたは技術選定をサポートするAIアシスタントです。

@@ -5,6 +5,18 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Message, Phase } from '@/lib/types'
 
+function safeUrl(url: string): string | undefined {
+  if (!url) return undefined
+  if (url.startsWith('#') || url.startsWith('/') || url.startsWith('./') || url.startsWith('../')) return url
+  try {
+    const parsed = new URL(url)
+    if (['http:', 'https:', 'mailto:'].includes(parsed.protocol)) return url
+    return undefined
+  } catch {
+    return undefined
+  }
+}
+
 const PHASE_LABELS: Record<Phase, string> = {
   phase1: 'フェーズ 1: 企画・要件定義',
   phase2: 'フェーズ 2: 技術選定',
@@ -75,7 +87,7 @@ export default function ChatPane({ messages, phase, questionIndex, isLoading, on
             >
               {msg.role === 'assistant' ? (
                 <div className="markdown-chat">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} urlTransform={safeUrl}>{msg.content}</ReactMarkdown>
                 </div>
               ) : (
                 <p className="whitespace-pre-wrap">{msg.content}</p>
