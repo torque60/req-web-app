@@ -49,11 +49,12 @@ function extractJson(text: string): ApiResponse {
 
 export async function POST(req: NextRequest) {
   try {
-    // CSRF: 異なるオリジンからのリクエストを拒否
+    // CSRF: 異なるオリジンからのブラウザリクエストを拒否
     const origin = req.headers.get('origin')
     if (origin) {
       const host = req.headers.get('host') ?? ''
       if (!origin.endsWith(`//${host}`)) {
+        console.warn('CSRF blocked:', origin, 'host:', host)
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       }
     }
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
     const { messages, phase, questionIndex, doc } = body
 
     const apiKey = process.env.GEMINI_API_KEY
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash-lite'
+    const modelName = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite'
 
     if (!apiKey) {
       return NextResponse.json({ error: 'Service unavailable' }, { status: 503 })
@@ -111,8 +112,8 @@ export async function POST(req: NextRequest) {
         { status: 200 }
       )
     }
-  } catch {
-    console.error('Unexpected API error')
+  } catch (e) {
+    console.error('Unexpected API error:', e instanceof Error ? e.message : String(e))
     return NextResponse.json({ error: 'Service unavailable' }, { status: 503 })
   }
 }
