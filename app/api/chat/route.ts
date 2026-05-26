@@ -38,7 +38,9 @@ export async function POST(req: NextRequest) {
     systemInstruction: systemPrompt,
   })
 
-  const history = messages.slice(0, -1).map(m => ({
+  const allButLast = messages.slice(0, -1)
+  const firstUserIndex = allButLast.findIndex(m => m.role === 'user')
+  const history = (firstUserIndex >= 0 ? allButLast.slice(firstUserIndex) : []).map(m => ({
     role: m.role === 'assistant' ? 'model' as const : 'user' as const,
     parts: [{ text: m.content }],
   }))
