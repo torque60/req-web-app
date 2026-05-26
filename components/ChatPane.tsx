@@ -111,7 +111,7 @@ export default function ChatPane({ messages, phase, questionIndex, isLoading, on
                 : 'メッセージを入力...'
             }
             disabled={phase === 'done' || isLoading}
-            className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:bg-gray-50 disabled:text-gray-400"
+            className="flex-1 px-3 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:bg-gray-50 disabled:text-gray-400"
           />
           <button
             type="submit"
